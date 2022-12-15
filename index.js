@@ -1,8 +1,8 @@
 const https = require("https")
 const express = require("express")
 const app = express()
-const PORT = process.env.PORT || 3000
-const TOKEN = process.env.LINE_ACCESS_TOKEN
+const PORT = process.env.PORT || 3000 //
+const TOKEN = '9UuuOoemAOcBwMH+8qg7ltt78oDQ13EXMbO6BvDkTST812/gvBvT3iaUQhrG1Jjc3DNjuQ360O2Ivp2k7n74xVrL+wjPGR3YiTa1l7mUWBScKqhZqyMY5SKX9s+Q5KPcgDxnEovactioJHpTRsHiBAdB04t89/1O/w1cDnyilFU=' // ============= เพิ่มเข้ามาใหม่
 
 app.use(express.json())
 app.use(express.urlencoded({
@@ -10,12 +10,12 @@ app.use(express.urlencoded({
 }))
 
 app.get("/", (req, res) => {
-    res.sendStatus(200)
+    res.send('สวัสดี express webhook')
 })
 
-app.post("/webhook", function (req, res) {
+app.post("/webhook", (req, res) => {
+    console.log('req.body =>', JSON.stringify(req.body, null, 2))
     res.send("HTTP POST request sent to the webhook URL!")
-    // If the user sends a message to your bot, send a reply message
     if (req.body.events[0].type === "message") {
         // Message data, must be stringified
         const dataString = JSON.stringify({
