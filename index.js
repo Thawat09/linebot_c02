@@ -17,7 +17,7 @@ passport.deserializeUser(User.deserializeUser());
 passport.use(new LocalStrategy(User.authenticate()));
 
 app.get("/", (req, res) => {
-    res.send('สวัสดี express webhook')
+    res.send('Hello express webhook')
 })
 
 app.post("/webhook", (req, res) => {
@@ -25,6 +25,7 @@ app.post("/webhook", (req, res) => {
     res.send("HTTP POST request sent to the webhook URL!")
     const user_message = req.body.events[0].message.text
 
+    //---------------------------------------------------------------------------//
     if (user_message.split(' ')[0] === "On") {
         // Message data, must be stringified
         const dataString = JSON.stringify({
@@ -64,6 +65,7 @@ app.post("/webhook", (req, res) => {
         request.end()
     }
 
+    //---------------------------------------------------------------------------//
     else if (user_message.split(' ')[0] === "Off") {
         // Message data, must be stringified
         const dataString = JSON.stringify({
@@ -103,110 +105,141 @@ app.post("/webhook", (req, res) => {
         request.end()
     }
 
+    //---------------------------------------------------------------------------//
     else if (user_message.split(' ')[0] === "Show") {
-        User.find({ 'idMicro': 'A12345' }).then(async function (doc) {
-            var a = ""
-            for (let type of doc) {
-                a += type
-            }
-            // Message data, must be stringified
-            var body = {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": "ESP8266",
-                        "weight": "bold",
-                        "size": "xl"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "margin": "lg",
-                        "spacing": "sm",
-                        "contents": [
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "Details",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "Khlong6",
-                                        "wrap": true,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "Devices",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "DHT22",
-                                        "wrap": true,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-            var footer = {
-                "type": "box",
-                "layout": "vertical",
-                "spacing": "sm",
-                "contents": [
-                    {
-                        "type": "button",
-                        "style": "primary",
-                        "height": "sm",
-                        "action": {
-                            "type": "message",
-                            "label": "On",
-                            "text": "On"
+        User.find({ 'idMicro': 'A12345' }, { '_id': 0, 'sensorPin': 1 }).then(function (doc) {
+            // var data = ""
+            // for (let type of doc) {
+            //     data = type
+            // }
+            if (doc.length > 0) {
+                var body = {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "ESP8266",
+                            "weight": "bold",
+                            "size": "xl"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "margin": "lg",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "spacing": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "Details",
+                                            "color": "#aaaaaa",
+                                            "size": "sm",
+                                            "flex": 1
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Khlong6",
+                                            "wrap": true,
+                                            "color": "#666666",
+                                            "size": "sm",
+                                            "flex": 5
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "spacing": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "Devices",
+                                            "color": "#aaaaaa",
+                                            "size": "sm",
+                                            "flex": 1
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "DHT22",
+                                            "wrap": true,
+                                            "color": "#666666",
+                                            "size": "sm",
+                                            "flex": 5
+                                        }
+                                    ]
+                                }
+                            ]
                         }
-                    },
-                    {
-                        "type": "button",
-                        "style": "link",
-                        "height": "sm",
-                        "action": {
-                            "type": "message",
-                            "label": "Off",
-                            "text": "Off"
+                    ]
+                }
+            }
+            // var buttonLine = []
+            // for (var i = 0; i < doc.length; i++) {
+            //     buttonLine = {
+            //         "type": "button",
+            //         "style": "primary",
+            //         "height": "sm",
+            //         "action": {
+            //             "type": "message",
+            //             "label": doc[i] + '\n',
+            //             "text": "On"
+            //         }
+            //     }
+            // }
+            if (doc.length > 0) {
+                for (var i = 0; i < doc.length; i++) {
+                    var footer = (
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "button",
+                                    "style": "primary",
+                                    "height": "sm",
+                                    "action": {
+                                        "type": "message",
+                                        "label": doc[0] + '\n',
+                                        "text": "On"
+                                    }
+                                },
+                                {
+                                    "type": "button",
+                                    "style": "primary",
+                                    "height": "sm",
+                                    "action": {
+                                        "type": "message",
+                                        "label": doc[1] + '\n',
+                                        "text": "On"
+                                    }
+                                },
+                                {
+                                    "type": "button",
+                                    "style": "primary",
+                                    "height": "sm",
+                                    "action": {
+                                        "type": "message",
+                                        "label": doc[2] + '\n',
+                                        "text": "On"
+                                    }
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "contents": [],
+                                    "margin": "sm"
+                                }
+                            ],
+                            "flex": 0
                         }
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [],
-                        "margin": "sm"
-                    }
-                ],
-                "flex": 0
+                    )
+                }
             }
             var header = {
                 "type": "flex",
@@ -228,6 +261,7 @@ app.post("/webhook", (req, res) => {
                     footer,
                 }
             }
+            // Message data, must be stringified
             const dataString = JSON.stringify({
                 replyToken: req.body.events[0].replyToken,
                 messages: [
@@ -263,6 +297,7 @@ app.post("/webhook", (req, res) => {
         });
     }
 
+    //---------------------------------------------------------------------------//
     else {
         // Message data, must be stringified
         const dataString = JSON.stringify({
@@ -301,6 +336,7 @@ app.post("/webhook", (req, res) => {
         request.write(dataString)
         request.end()
     }
+
 })
 
 app.listen(PORT, () => {
