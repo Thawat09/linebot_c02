@@ -26,92 +26,9 @@ app.post("/webhook", (req, res) => {
     const user_message = req.body.events[0].message.text
 
     //---------------------------------------------------------------------------//
-    if (user_message.split(' ')[0] === "On") {
-        // Message data, must be stringified
-        const dataString = JSON.stringify({
-            replyToken: req.body.events[0].replyToken,
-            messages: [
-                {
-                    "type": "text",
-                    "text": "The selected device is turned on.!!!"
-                }
-            ]
-        })
-        // Request header
-        const headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + TOKEN
-        }
-        // Options to pass into the request
-        const webhookOptions = {
-            "hostname": "api.line.me",
-            "path": "/v2/bot/message/reply",
-            "method": "POST",
-            "headers": headers,
-            "body": dataString
-        }
-        // Define request
-        const request = https.request(webhookOptions, (res) => {
-            res.on("data", (d) => {
-                process.stdout.write(d)
-            })
-        })
-        // Handle error
-        request.on("error", (err) => {
-            console.error(err)
-        })
-        // Send data
-        request.write(dataString)
-        request.end()
-    }
-
-    //---------------------------------------------------------------------------//
-    else if (user_message.split(' ')[0] === "Off") {
-        // Message data, must be stringified
-        const dataString = JSON.stringify({
-            replyToken: req.body.events[0].replyToken,
-            messages: [
-                {
-                    "type": "text",
-                    "text": "The selected device is turned off.!!!"
-                }
-            ]
-        })
-        // Request header
-        const headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + TOKEN
-        }
-        // Options to pass into the request
-        const webhookOptions = {
-            "hostname": "api.line.me",
-            "path": "/v2/bot/message/reply",
-            "method": "POST",
-            "headers": headers,
-            "body": dataString
-        }
-        // Define request
-        const request = https.request(webhookOptions, (res) => {
-            res.on("data", (d) => {
-                process.stdout.write(d)
-            })
-        })
-        // Handle error
-        request.on("error", (err) => {
-            console.error(err)
-        })
-        // Send data
-        request.write(dataString)
-        request.end()
-    }
-
-    //---------------------------------------------------------------------------//
-    else if (user_message.split(' ')[0] === "Show") {
-        User.find({ 'idMicro': 'A12345' }, { '_id': 0, 'sensorPin': 1 }).then(function (doc) {
-            // var data = ""
-            // for (let type of doc) {
-            //     data = type
-            // }
+    if (user_message.split(' ')[0] === "Show") {
+        User.find({ 'idMicro': '12345'}, { '_id': 0, 'sensorPin': 1 }).then(function (doc) {
+            doc = doc.toString().replace(/[^\d.]/g, '');
             if (doc.length > 0) {
                 var body = {
                     "type": "box",
@@ -178,67 +95,148 @@ app.post("/webhook", (req, res) => {
                     ]
                 }
             }
-            // var buttonLine = []
-            // for (var i = 0; i < doc.length; i++) {
-            //     buttonLine = {
-            //         "type": "button",
-            //         "style": "primary",
-            //         "height": "sm",
-            //         "action": {
-            //             "type": "message",
-            //             "label": doc[i] + '\n',
-            //             "text": "On"
-            //         }
-            //     }
-            // }
             if (doc.length > 0) {
                 for (var i = 0; i < doc.length; i++) {
-                    var footer = (
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "spacing": "sm",
-                            "contents": [
-                                {
-                                    "type": "button",
-                                    "style": "primary",
-                                    "height": "sm",
-                                    "action": {
-                                        "type": "message",
-                                        "label": doc[0] + '\n',
-                                        "text": "On"
+                    if (doc.length > 0) {
+                        if (doc.length > 1) {
+                            if (doc.length > 2) {
+                                if (doc.length > 3) {
+                                }
+                                else {
+                                    var footer = (
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "spacing": "sm",
+                                            "contents": [
+                                                {
+                                                    "type": "button",
+                                                    "style": "primary",
+                                                    "height": "sm",
+                                                    "action": {
+                                                        "type": "message",
+                                                        "label": "Pin " + doc[0] + '\n',
+                                                        "text": doc[0] + '\n'
+                                                    }
+                                                },
+                                                {
+                                                    "type": "button",
+                                                    "style": "primary",
+                                                    "height": "sm",
+                                                    "action": {
+                                                        "type": "message",
+                                                        "label": "Pin " + doc[1] + '\n',
+                                                        "text": doc[1] + '\n'
+                                                    }
+                                                },
+                                                {
+                                                    "type": "button",
+                                                    "style": "primary",
+                                                    "height": "sm",
+                                                    "action": {
+                                                        "type": "message",
+                                                        "label": "Pin " + doc[2] + '\n',
+                                                        "text": doc[2] + '\n'
+                                                    }
+                                                },
+                                                {
+                                                    "type": "box",
+                                                    "layout": "vertical",
+                                                    "contents": [],
+                                                    "margin": "sm"
+                                                }
+                                            ],
+                                            "flex": 0
+                                        }
+                                    )
+                                }
+                            }
+                            else {
+                                var footer = (
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "spacing": "sm",
+                                        "contents": [
+                                            {
+                                                "type": "button",
+                                                "style": "primary",
+                                                "height": "sm",
+                                                "action": {
+                                                    "type": "message",
+                                                    "label": "Pin " + doc[0] + '\n',
+                                                    "text": doc[0] + '\n'
+                                                }
+                                            },
+                                            {
+                                                "type": "button",
+                                                "style": "primary",
+                                                "height": "sm",
+                                                "action": {
+                                                    "type": "message",
+                                                    "label": "Pin " + doc[1] + '\n',
+                                                    "text": doc[1] + '\n'
+                                                }
+                                            },
+                                            {
+                                                "type": "box",
+                                                "layout": "vertical",
+                                                "contents": [],
+                                                "margin": "sm"
+                                            }
+                                        ],
+                                        "flex": 0
                                     }
-                                },
-                                {
-                                    "type": "button",
-                                    "style": "primary",
-                                    "height": "sm",
-                                    "action": {
-                                        "type": "message",
-                                        "label": doc[1] + '\n',
-                                        "text": "On"
-                                    }
-                                },
-                                {
-                                    "type": "button",
-                                    "style": "primary",
-                                    "height": "sm",
-                                    "action": {
-                                        "type": "message",
-                                        "label": doc[2] + '\n',
-                                        "text": "On"
-                                    }
-                                },
+                                )
+                            }
+                        }
+                        else {
+                            var footer = (
                                 {
                                     "type": "box",
                                     "layout": "vertical",
-                                    "contents": [],
-                                    "margin": "sm"
+                                    "spacing": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "button",
+                                            "style": "primary",
+                                            "height": "sm",
+                                            "action": {
+                                                "type": "message",
+                                                "label": "Pin " + doc[0] + '\n',
+                                                "text": doc[0] + '\n'
+                                            }
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "contents": [],
+                                            "margin": "sm"
+                                        }
+                                    ],
+                                    "flex": 0
                                 }
-                            ],
-                            "flex": 0
+                            )
                         }
-                    )
+                    }
+                    else {
+                        var footer = (
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [],
+                                        "margin": "sm"
+                                    }
+                                ],
+                                "flex": 0
+                            }
+                        )
+                    }
                 }
             }
             var header = {
@@ -296,45 +294,61 @@ app.post("/webhook", (req, res) => {
             request.end()
         });
     }
-
     //---------------------------------------------------------------------------//
     else {
-        // Message data, must be stringified
-        const dataString = JSON.stringify({
-            replyToken: req.body.events[0].replyToken,
-            messages: [
-                {
-                    "type": "text",
-                    "text": "Command not found!!!"
-                }
-            ]
-        })
-        // Request header
-        const headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + TOKEN
-        }
-        // Options to pass into the request
-        const webhookOptions = {
-            "hostname": "api.line.me",
-            "path": "/v2/bot/message/reply",
-            "method": "POST",
-            "headers": headers,
-            "body": dataString
-        }
-        // Define request
-        const request = https.request(webhookOptions, (res) => {
-            res.on("data", (d) => {
-                process.stdout.write(d)
+        User.find({ 'idline': user_message }, { '_id': 1 }).then(function (doc) {
+            console.log(doc + ' 1')
+            if (doc.length > 0) {
+                let user_id = doc[0]['_id'];
+                console.log(user_id + ' 2')
+                User.find({ 'user_id': user_id }, {'_id': 0, 'serialnumber': 1 }).then(function (doc1) {
+                    let idMicro = doc1[0];
+                    idMicro = idMicro.toString().replace(/[^\d.]/g, '');
+                    console.log(user_id + ' 3')
+                    User.find({ 'idMicro': idMicro }).then(function (doc2) {
+                        console.log(doc2 + ' 4')
+                    })
+                })
+            }
+            else {
+                // Message data, must be stringified
+            const dataString = JSON.stringify({
+                replyToken: req.body.events[0].replyToken,
+                messages: [
+                    {
+                        "type": "text",
+                        "text": "Command not found!!!"
+                    }
+                ]
             })
+            // Request header
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + TOKEN
+            }
+            // Options to pass into the request
+            const webhookOptions = {
+                "hostname": "api.line.me",
+                "path": "/v2/bot/message/reply",
+                "method": "POST",
+                "headers": headers,
+                "body": dataString
+            }
+            // Define request
+            const request = https.request(webhookOptions, (res) => {
+                res.on("data", (d) => {
+                    process.stdout.write(d)
+                })
+            })
+            // Handle error
+            request.on("error", (err) => {
+                console.error(err)
+            })
+            // Send data
+            request.write(dataString)
+            request.end()
+            }
         })
-        // Handle error
-        request.on("error", (err) => {
-            console.error(err)
-        })
-        // Send data
-        request.write(dataString)
-        request.end()
     }
 
 })
