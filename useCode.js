@@ -2,7 +2,7 @@ console.log('req.body =>', JSON.stringify(req.body, null, 2))
 res.send("HTTP POST request sent to the webhook URL!")
 
 //---------------------------------------------------------------------------//
-if (user_message.split(' ')[0] === "On") {
+if (user_message.split(' ')[0] === "true") {
     // Message data, must be stringified
     const dataString = JSON.stringify({
         replyToken: req.body.events[0].replyToken,
@@ -42,7 +42,7 @@ if (user_message.split(' ')[0] === "On") {
 }
 
 //---------------------------------------------------------------------------//
-else if (user_message.split(' ')[0] === "Off") {
+else if (user_message.split(' ')[0] === "false") {
     // Message data, must be stringified
     const dataString = JSON.stringify({
         replyToken: req.body.events[0].replyToken,

@@ -16,7 +16,7 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 passport.use(new LocalStrategy(User.authenticate()));
 
-let user_id, idSerial, namesensor = ""
+let user_id, idSerial, namesensor, status, color = ""
 let mysort = { '_id': -1 };
 
 app.get("/", (req, res) => {
@@ -29,7 +29,7 @@ app.post("/webhook", (req, res) => {
     const user_message = req.body.events[0]?.message.text
 
     //---------------------------------------------------------------------------//
-    if (user_message?.split(' ')[0] === "On") {
+    if (user_message?.split(' ')[0] === "true") {
         // Message data, must be stringified
         const dataString = JSON.stringify({
             replyToken: req.body.events[0].replyToken,
@@ -69,7 +69,7 @@ app.post("/webhook", (req, res) => {
     }
 
     //---------------------------------------------------------------------------//
-    else if (user_message?.split(' ')[0] === "Off") {
+    else if (user_message?.split(' ')[0] === "false") {
         // Message data, must be stringified
         const dataString = JSON.stringify({
             replyToken: req.body.events[0].replyToken,
@@ -629,139 +629,183 @@ app.post("/webhook", (req, res) => {
             })
         }
         if (user_id) {
-            User.findOne({ $and: [{ 'namesensor': user_message }, { 'idSerial': idSerial }] }, { '_id': 0, 'temperature': 1, 'humidity': 1, 'aqi': 1 }).sort(mysort).then(function (doc) {
-                if (doc?.temperature > 0) {
-                    namesensor = req.body.events[0].message.text
-                    var footer = (
-                        {
+            User.findOne({ $and: [{ 'namesensor': user_message }, { 'idMicro': idSerial }] }, { '_id': 0, 'onoff': 1 }).then(function (doc1) {
+                if (doc1?.onoff == true) {
+                    status = "On"
+                    text = "Off"
+                    color = "#0BCD55"
+                    color1 = "#FF0000"
+                    label = "false"
+                }
+                else {
+                    status = "Off"
+                    text = "On"
+                    color = "#FF0000"
+                    color1 = "#0BCD55"
+                    label = "true"
+                }
+                User.findOne({ $and: [{ 'namesensor': user_message }, { 'idSerial': idSerial }] }, { '_id': 0, 'temperature': 1, 'humidity': 1, 'aqi': 1 }).sort(mysort).then(function (doc) {
+                    if (doc?.temperature > 0) {
+                        namesensor = req.body.events[0].message.text
+                        var footer = (
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "box",
+                                        "layout": "baseline",
+                                        "contents": [
+                                            {
+                                                "type": "icon",
+                                                "url": "https://cdn-icons-png.flaticon.com/512/1090/1090683.png",
+                                                "size": "md"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " Temperature : " + doc?.temperature + "°C",
+                                                "size": "md"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "baseline",
+                                        "contents": [
+                                            {
+                                                "type": "icon",
+                                                "url": "https://png.pngtree.com/png-vector/20190219/ourlarge/pngtree-vector-humidity-icon-png-image_563949.jpg",
+                                                "size": "md"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " Humidity : " + doc?.humidity + "%",
+                                                "size": "md"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "baseline",
+                                        "contents": [
+                                            {
+                                                "type": "icon",
+                                                "url": "https://media.istockphoto.com/id/1433126279/vector/abstract-cloud-pm-2-5-for-concept-design-cloud-icon-vector-illustration-stock-image.jpg?b=1&s=170667a&w=0&k=20&c=HddytKGZavZWOfgvdSKw_hNUGnw8XYWrpDtOInNrtt4=",
+                                                "size": "md"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " PM2.5 : " + doc?.aqi + "AQI",
+                                                "size": "md"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [],
+                                        "margin": "sm"
+                                    },
+                                    {
+                                        "type": "separator",
+                                        "margin": "md"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "Status : " + status,
+                                        "color": color,
+                                        "size": "md",
+                                        "weight": "bold",
+                                        "align": "center"
+                                    },
+                                    {
+                                        "type": "separator",
+                                        "margin": "md"
+                                    },
+                                    {
+                                        "type": "button",
+                                        "color": color1,
+                                        "style": "primary",
+                                        "margin": "md",
+                                        "height": "sm",
+                                        "action": {
+                                            "type": "message",
+                                            "label": text,
+                                            "text": label
+                                        },
+                                    }
+                                ],
+                                "flex": 0
+                            }
+                        )
+                        var body = {
                             "type": "box",
                             "layout": "vertical",
-                            "spacing": "sm",
                             "contents": [
                                 {
-                                    "type": "box",
-                                    "layout": "baseline",
-                                    "contents": [
-                                        {
-                                            "type": "icon",
-                                            "url": "https://cdn-icons-png.flaticon.com/512/1090/1090683.png",
-                                            "size": "md"
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": " Temperature : " + doc?.temperature + "°C",
-                                            "size": "md"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "baseline",
-                                    "contents": [
-                                        {
-                                            "type": "icon",
-                                            "url": "https://png.pngtree.com/png-vector/20190219/ourlarge/pngtree-vector-humidity-icon-png-image_563949.jpg",
-                                            "size": "md"
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": " Humidity : " + doc?.humidity + "%",
-                                            "size": "md"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "baseline",
-                                    "contents": [
-                                        {
-                                            "type": "icon",
-                                            "url": "https://media.istockphoto.com/id/1433126279/vector/abstract-cloud-pm-2-5-for-concept-design-cloud-icon-vector-illustration-stock-image.jpg?b=1&s=170667a&w=0&k=20&c=HddytKGZavZWOfgvdSKw_hNUGnw8XYWrpDtOInNrtt4=",
-                                            "size": "md"
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": " PM2.5 : " + doc?.aqi + "AQI",
-                                            "size": "md"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "contents": [],
-                                    "margin": "sm"
+                                    "type": "text",
+                                    "text": "Weather",
+                                    "weight": "bold",
+                                    "size": "xl"
                                 }
-                            ],
-                            "flex": 0
+                            ]
                         }
-                    )
-                    var body = {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "text",
-                                "text": "Weather",
-                                "weight": "bold",
-                                "size": "xl"
+                        var header = {
+                            "type": "flex",
+                            "altText": "Flex Message",
+                            "contents": {
+                                "type": "bubble",
+                                "hero": {
+                                    "type": "image",
+                                    "url": "https://img.winnews.tv/files/site/e83631d3ff566f089b23641f0aac5082.jpg",
+                                    "size": "full",
+                                    "aspectRatio": "20:13",
+                                    "aspectMode": "cover",
+                                    "action": {
+                                        "type": "uri",
+                                        "uri": "http://linecorp.com/"
+                                    }
+                                },
+                                body,
+                                footer,
                             }
-                        ]
-                    }
-                    var header = {
-                        "type": "flex",
-                        "altText": "Flex Message",
-                        "contents": {
-                            "type": "bubble",
-                            "hero": {
-                                "type": "image",
-                                "url": "https://img.winnews.tv/files/site/e83631d3ff566f089b23641f0aac5082.jpg",
-                                "size": "full",
-                                "aspectRatio": "20:13",
-                                "aspectMode": "cover",
-                                "action": {
-                                    "type": "uri",
-                                    "uri": "http://linecorp.com/"
-                                }
-                            },
-                            body,
-                            footer,
                         }
-                    }
-                    // Message data, must be stringified
-                    const dataString = JSON.stringify({
-                        replyToken: req.body.events[0].replyToken,
-                        messages: [
-                            header
-                        ]
-                    })
-                    // Request header
-                    const headers = {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + TOKEN
-                    }
-                    // Options to pass into the request
-                    const webhookOptions = {
-                        "hostname": "api.line.me",
-                        "path": "/v2/bot/message/reply",
-                        "method": "POST",
-                        "headers": headers,
-                        "body": dataString
-                    }
-                    // Define request
-                    const request = https.request(webhookOptions, (res) => {
-                        res.on("data", (d) => {
-                            process.stdout.write(d)
+                        // Message data, must be stringified
+                        const dataString = JSON.stringify({
+                            replyToken: req.body.events[0].replyToken,
+                            messages: [
+                                header
+                            ]
                         })
-                    })
-                    // Handle error
-                    request.on("error", (err) => {
-                        console.error(err)
-                    })
-                    // Send data
-                    request.write(dataString)
-                    request.end()
-                }
+                        // Request header
+                        const headers = {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + TOKEN
+                        }
+                        // Options to pass into the request
+                        const webhookOptions = {
+                            "hostname": "api.line.me",
+                            "path": "/v2/bot/message/reply",
+                            "method": "POST",
+                            "headers": headers,
+                            "body": dataString
+                        }
+                        // Define request
+                        const request = https.request(webhookOptions, (res) => {
+                            res.on("data", (d) => {
+                                process.stdout.write(d)
+                            })
+                        })
+                        // Handle error
+                        request.on("error", (err) => {
+                            console.error(err)
+                        })
+                        // Send data
+                        request.write(dataString)
+                        request.end()
+                    }
+                })
             })
         }
     }
