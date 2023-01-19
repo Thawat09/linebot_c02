@@ -16,8 +16,9 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 passport.use(new LocalStrategy(User.authenticate()));
 
-let user_id, idSerial, namesensor, status, color = ""
+let user_id, _idMicro, idSerial, namesensor, status, color = ""
 let mysort = { '_id': -1 };
+var ObjectId = require('mongodb').ObjectId;
 
 app.get("/", (req, res) => {
     res.send('Hello express webhook')
@@ -30,82 +31,272 @@ app.post("/webhook", (req, res) => {
 
     //---------------------------------------------------------------------------//
     if (user_message?.split(' ')[0] === "true") {
-        // Message data, must be stringified
-        const dataString = JSON.stringify({
-            replyToken: req.body.events[0].replyToken,
-            messages: [
-                {
-                    "type": "text",
-                    "text": "The selected device is turned on.!!!"
+        let value = req.body.events[0]?.message.text
+        let data = ({ $and: [{ 'namesensor': namesensor, 'idMicro': idSerial }] }, { $set: { 'onoff': value } })
+        User.findByIdAndUpdate(_idMicro, data).exec(
+            (err) => {
+                if (err) {
+                    console.log(err)
                 }
-            ]
-        })
-        // Request header
-        const headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + TOKEN
-        }
-        // Options to pass into the request
-        const webhookOptions = {
-            "hostname": "api.line.me",
-            "path": "/v2/bot/message/reply",
-            "method": "POST",
-            "headers": headers,
-            "body": dataString
-        }
-        // Define request
-        const request = https.request(webhookOptions, (res) => {
-            res.on("data", (d) => {
-                process.stdout.write(d)
-            })
-        })
-        // Handle error
-        request.on("error", (err) => {
-            console.error(err)
-        })
-        // Send data
-        request.write(dataString)
-        request.end()
+                else {
+                    // Message data, must be stringified
+                    const dataString = JSON.stringify({
+                        replyToken: req.body.events[0].replyToken,
+                        messages: [
+                            {
+                                "type": "text",
+                                "text": "The selected device is turned on.!!!"
+                            }
+                        ]
+                    })
+                    // Request header
+                    const headers = {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + TOKEN
+                    }
+                    // Options to pass into the request
+                    const webhookOptions = {
+                        "hostname": "api.line.me",
+                        "path": "/v2/bot/message/reply",
+                        "method": "POST",
+                        "headers": headers,
+                        "body": dataString
+                    }
+                    // Define request
+                    const request = https.request(webhookOptions, (res) => {
+                        res.on("data", (d) => {
+                            process.stdout.write(d)
+                        })
+                    })
+                    // Handle error
+                    request.on("error", (err) => {
+                        console.error(err)
+                    })
+                    // Send data
+                    request.write(dataString)
+                    request.end()
+                }
+            }
+        );
     }
 
     //---------------------------------------------------------------------------//
     else if (user_message?.split(' ')[0] === "false") {
-        // Message data, must be stringified
-        const dataString = JSON.stringify({
-            replyToken: req.body.events[0].replyToken,
-            messages: [
-                {
-                    "type": "text",
-                    "text": "The selected device is turned off.!!!"
+        let value = req.body.events[0]?.message.text
+        let data = ({ $and: [{ 'namesensor': namesensor, 'idMicro': idSerial }] }, { $set: { 'onoff': value } })
+        User.findByIdAndUpdate(_idMicro, data).exec(
+            (err) => {
+                if (err) {
+                    console.log(err)
                 }
-            ]
-        })
-        // Request header
-        const headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + TOKEN
-        }
-        // Options to pass into the request
-        const webhookOptions = {
-            "hostname": "api.line.me",
-            "path": "/v2/bot/message/reply",
-            "method": "POST",
-            "headers": headers,
-            "body": dataString
-        }
-        // Define request
-        const request = https.request(webhookOptions, (res) => {
-            res.on("data", (d) => {
-                process.stdout.write(d)
+                else {
+                    // Message data, must be stringified
+                    const dataString = JSON.stringify({
+                        replyToken: req.body.events[0].replyToken,
+                        messages: [
+                            {
+                                "type": "text",
+                                "text": "The selected device is turned off.!!!"
+                            }
+                        ]
+                    })
+                    // Request header
+                    const headers = {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + TOKEN
+                    }
+                    // Options to pass into the request
+                    const webhookOptions = {
+                        "hostname": "api.line.me",
+                        "path": "/v2/bot/message/reply",
+                        "method": "POST",
+                        "headers": headers,
+                        "body": dataString
+                    }
+                    // Define request
+                    const request = https.request(webhookOptions, (res) => {
+                        res.on("data", (d) => {
+                            process.stdout.write(d)
+                        })
+                    })
+                    // Handle error
+                    request.on("error", (err) => {
+                        console.error(err)
+                    })
+                    // Send data
+                    request.write(dataString)
+                    request.end()
+                }
+            }
+        );
+    }
+
+    //-------------------------------กำลังทำ--------------------------------------------//
+    else if (user_message?.split(' ')[0] === "add") {
+        const readline = require('readline');
+        const readInterface = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+        readInterface.question(name(), name => {
+            showName(name)
+            readInterface.question(long(), lang => {
+                showLong(lang)
+                readInterface.close();
+            });
+        });
+        async function name() {
+            // Message data, must be stringified
+            const dataString = await JSON.stringify({
+                replyToken: req.body.events[0].replyToken,
+                messages: [
+                    {
+                        "type": "text",
+                        "text": "What\'s your name? "
+                    },
+                ]
             })
-        })
-        // Handle error
-        request.on("error", (err) => {
-            console.error(err)
-        })
-        // Send data
-        request.write(dataString)
-        request.end()
+            // Request header
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + TOKEN
+            }
+            // Options to pass into the request
+            const webhookOptions = {
+                "hostname": "api.line.me",
+                "path": "/v2/bot/message/reply",
+                "method": "POST",
+                "headers": headers,
+                "body": dataString
+            }
+            // Define request
+            const request = https.request(webhookOptions, (res) => {
+                res.on("data", (d) => {
+                    process.stdout.write(d)
+                })
+            })
+            // Handle error
+            request.on("error", (err) => {
+                console.error(err)
+            })
+            // Send data
+            request.write(dataString)
+            request.end()
+        }
+        async function long() {
+            // Message data, must be stringified
+            const dataString = await JSON.stringify({
+                replyToken: req.body.events[0].replyToken,
+                messages: [
+                    {
+                        "type": "text",
+                        "text": "What\'s you favorite language? "
+                    },
+                ]
+            })
+            // Request header
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + TOKEN
+            }
+            // Options to pass into the request
+            const webhookOptions = {
+                "hostname": "api.line.me",
+                "path": "/v2/bot/message/reply",
+                "method": "POST",
+                "headers": headers,
+                "body": dataString
+            }
+            // Define request
+            const request = https.request(webhookOptions, (res) => {
+                res.on("data", (d) => {
+                    process.stdout.write(d)
+                })
+            })
+            // Handle error
+            request.on("error", (err) => {
+                console.error(err)
+            })
+            // Send data
+            request.write(dataString)
+            request.end()
+        }
+        async function showName(name) {
+            // Message data, must be stringified
+            const dataString = await JSON.stringify({
+                replyToken: req.body.events[0].replyToken,
+                messages: [
+                    {
+                        "type": "text",
+                        "text": `Hi ${name}!`
+                    }
+                ]
+            })
+            // Request header
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + TOKEN
+            }
+            // Options to pass into the request
+            const webhookOptions = {
+                "hostname": "api.line.me",
+                "path": "/v2/bot/message/reply",
+                "method": "POST",
+                "headers": headers,
+                "body": dataString
+            }
+            // Define request
+            const request = https.request(webhookOptions, (res) => {
+                res.on("data", (d) => {
+                    process.stdout.write(d)
+                })
+            })
+            // Handle error
+            request.on("error", (err) => {
+                console.error(err)
+            })
+            // Send data
+            request.write(dataString)
+            request.end()
+        }
+        async function showLong(long) {
+            // Message data, must be stringified
+            const dataString = await JSON.stringify({
+                replyToken: req.body.events[0].replyToken,
+                messages: [
+                    {
+                        "type": "text",
+                        "text": `Nice! ${long} is my favorite too!`
+                    }
+                ]
+            })
+            // Request header
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + TOKEN
+            }
+            // Options to pass into the request
+            const webhookOptions = {
+                "hostname": "api.line.me",
+                "path": "/v2/bot/message/reply",
+                "method": "POST",
+                "headers": headers,
+                "body": dataString
+            }
+            // Define request
+            const request = https.request(webhookOptions, (res) => {
+                res.on("data", (d) => {
+                    process.stdout.write(d)
+                })
+            })
+            // Handle error
+            request.on("error", (err) => {
+                console.error(err)
+            })
+            // Send data
+            request.write(dataString)
+            request.end()
+        }
     }
 
     //---------------------------------------------------------------------------//
@@ -629,7 +820,8 @@ app.post("/webhook", (req, res) => {
             })
         }
         if (user_id) {
-            User.findOne({ $and: [{ 'namesensor': user_message }, { 'idMicro': idSerial }] }, { '_id': 0, 'onoff': 1 }).then(function (doc1) {
+            User.findOne({ $and: [{ 'namesensor': user_message }, { 'idMicro': idSerial }] }, { '_id': 1, 'onoff': 1 }).then(function (doc1) {
+                _idMicro = doc1?._id
                 if (doc1?.onoff == true) {
                     status = "On"
                     text = "Off"
