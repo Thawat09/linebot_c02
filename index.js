@@ -306,13 +306,63 @@ app.post("/webhook", (req, res) => {
                 if (doc.length > 0) {
                     user_id = doc.map((value) => value._id);
                     User.find({ 'user_id': user_id }, { '_id': 0, 'serialnumber': 1 }).then(function (doc1) {
-                        if (doc1.length > 0) {
-                            for (let i = 0; i < doc1.length; i++) {
-                                doc1[i] = doc1[i].toString().replace(/[^\d.]/g, '');
-                                if (doc1.length > 0) {
-                                    if (doc1.length > 1) {
-                                        if (doc1.length > 2) {
-                                            if (doc.length > 3) {
+                        User.find({ 'user_id': user_id }, { '_id': 0, 'namemicrocontroller': 1 }).then(function (doc2) {
+                            if (doc1.length > 0) {
+                                for (let i = 0; i < doc1.length; i++) {
+                                    doc1[i] = doc1[i].toString().replace(/[^\d.]/g, '');
+                                    if (doc1.length > 0) {
+                                        if (doc1.length > 1) {
+                                            if (doc1.length > 2) {
+                                                if (doc.length > 3) {
+                                                }
+                                                else {
+                                                    var footer = (
+                                                        {
+                                                            "type": "box",
+                                                            "layout": "vertical",
+                                                            "spacing": "sm",
+                                                            "contents": [
+                                                                {
+                                                                    "type": "button",
+                                                                    "style": "primary",
+                                                                    "height": "sm",
+                                                                    "action": {
+                                                                        "type": "message",
+                                                                        "label": "Serial " + doc[0] + '\n',
+                                                                        "text": doc[0]
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "type": "button",
+                                                                    "style": "primary",
+                                                                    "height": "sm",
+                                                                    "action": {
+                                                                        "type": "message",
+                                                                        "label": "Serial " + doc[1] + '\n',
+                                                                        "text": doc[1]
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "type": "button",
+                                                                    "style": "primary",
+                                                                    "height": "sm",
+                                                                    "action": {
+                                                                        "type": "message",
+                                                                        "label": "Serial " + doc[2] + '\n',
+                                                                        "text": doc[2]
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "type": "box",
+                                                                    "layout": "vertical",
+                                                                    "contents": [],
+                                                                    "margin": "sm"
+                                                                }
+                                                            ],
+                                                            "flex": 0
+                                                        }
+                                                    )
+                                                }
                                             }
                                             else {
                                                 var footer = (
@@ -327,8 +377,8 @@ app.post("/webhook", (req, res) => {
                                                                 "height": "sm",
                                                                 "action": {
                                                                     "type": "message",
-                                                                    "label": "Serial " + doc[0] + '\n',
-                                                                    "text": doc[0]
+                                                                    "label": "Serial " + doc1[0] + '\n',
+                                                                    "text": doc1[0]
                                                                 }
                                                             },
                                                             {
@@ -337,18 +387,8 @@ app.post("/webhook", (req, res) => {
                                                                 "height": "sm",
                                                                 "action": {
                                                                     "type": "message",
-                                                                    "label": "Serial " + doc[1] + '\n',
-                                                                    "text": doc[1]
-                                                                }
-                                                            },
-                                                            {
-                                                                "type": "button",
-                                                                "style": "primary",
-                                                                "height": "sm",
-                                                                "action": {
-                                                                    "type": "message",
-                                                                    "label": "Serial " + doc[2] + '\n',
-                                                                    "text": doc[2]
+                                                                    "label": "Serial " + doc1[1] + '\n',
+                                                                    "text": doc1[1]
                                                                 }
                                                             },
                                                             {
@@ -381,16 +421,6 @@ app.post("/webhook", (req, res) => {
                                                             }
                                                         },
                                                         {
-                                                            "type": "button",
-                                                            "style": "primary",
-                                                            "height": "sm",
-                                                            "action": {
-                                                                "type": "message",
-                                                                "label": "Serial " + doc1[1] + '\n',
-                                                                "text": doc1[1]
-                                                            }
-                                                        },
-                                                        {
                                                             "type": "box",
                                                             "layout": "vertical",
                                                             "contents": [],
@@ -410,16 +440,6 @@ app.post("/webhook", (req, res) => {
                                                 "spacing": "sm",
                                                 "contents": [
                                                     {
-                                                        "type": "button",
-                                                        "style": "primary",
-                                                        "height": "sm",
-                                                        "action": {
-                                                            "type": "message",
-                                                            "label": "Serial " + doc1[0] + '\n',
-                                                            "text": doc1[0]
-                                                        }
-                                                    },
-                                                    {
                                                         "type": "box",
                                                         "layout": "vertical",
                                                         "contents": [],
@@ -431,132 +451,114 @@ app.post("/webhook", (req, res) => {
                                         )
                                     }
                                 }
-                                else {
-                                    var footer = (
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "spacing": "sm",
-                                            "contents": [
-                                                {
-                                                    "type": "box",
-                                                    "layout": "vertical",
-                                                    "contents": [],
-                                                    "margin": "sm"
-                                                }
-                                            ],
-                                            "flex": 0
-                                        }
-                                    )
-                                }
-                            }
-                            if (doc.length > 0) {
-                                var body = {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "Microcontroller",
-                                            "weight": "bold",
-                                            "size": "xl"
-                                        },
-                                        {
-                                            "type": "box",
-                                            "layout": "vertical",
-                                            "margin": "lg",
-                                            "spacing": "sm",
-                                            "contents": [
-                                                {
-                                                    "type": "box",
-                                                    "layout": "baseline",
-                                                    "spacing": "sm",
-                                                    "contents": [
-                                                        {
-                                                            "type": "text",
-                                                            "text": "Details",
-                                                            "color": "#aaaaaa",
-                                                            "size": "sm",
-                                                            "flex": 1
-                                                        },
-                                                        {
-                                                            "type": "text",
-                                                            "text": "ESP8266",
-                                                            "wrap": true,
-                                                            "color": "#666666",
-                                                            "size": "sm",
-                                                            "flex": 5
-                                                        }
-                                                    ]
-                                                },
-                                            ]
-                                        }
-                                    ]
-                                }
-                            }
-                            if (doc.length > 0) {
-                                var header = {
-                                    "type": "flex",
-                                    "altText": "Flex Message",
-                                    "contents": {
-                                        "type": "bubble",
-                                        "hero": {
-                                            "type": "image",
-                                            "url": "https://miro.medium.com/max/1024/1*Yu0w5T7AWg8WqjVFXwaQPg.jpeg",
-                                            "size": "full",
-                                            "aspectRatio": "20:13",
-                                            "aspectMode": "cover",
-                                            "action": {
-                                                "type": "uri",
-                                                "uri": "http://linecorp.com/"
+                                if (doc.length > 0) {
+                                    var body = {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": "Microcontroller",
+                                                "weight": "bold",
+                                                "size": "xl"
+                                            },
+                                            {
+                                                "type": "box",
+                                                "layout": "vertical",
+                                                "margin": "lg",
+                                                "spacing": "sm",
+                                                "contents": [
+                                                    {
+                                                        "type": "box",
+                                                        "layout": "baseline",
+                                                        "spacing": "sm",
+                                                        "contents": [
+                                                            {
+                                                                "type": "text",
+                                                                "text": "Details",
+                                                                "color": "#aaaaaa",
+                                                                "size": "sm",
+                                                                "flex": 1
+                                                            },
+                                                            {
+                                                                "type": "text",
+                                                                "text": doc2[0]?.namemicrocontroller,
+                                                                "wrap": true,
+                                                                "color": "#666666",
+                                                                "size": "sm",
+                                                                "flex": 5
+                                                            }
+                                                        ]
+                                                    },
+                                                ]
                                             }
-                                        },
-                                        body,
-                                        footer,
+                                        ]
                                     }
                                 }
-                            }
-                            if (doc.length === 0) {
-                                var header = {
-                                    "type": "text",
-                                    "text": "no information found.!!!"
+                                if (doc.length > 0) {
+                                    var header = {
+                                        "type": "flex",
+                                        "altText": "Flex Message",
+                                        "contents": {
+                                            "type": "bubble",
+                                            "hero": {
+                                                "type": "image",
+                                                "url": "https://miro.medium.com/max/1024/1*Yu0w5T7AWg8WqjVFXwaQPg.jpeg",
+                                                "size": "full",
+                                                "aspectRatio": "20:13",
+                                                "aspectMode": "cover",
+                                                "action": {
+                                                    "type": "uri",
+                                                    "uri": "http://linecorp.com/"
+                                                }
+                                            },
+                                            body,
+                                            footer,
+                                        }
+                                    }
                                 }
-                            }
-                            // Message data, must be stringified
-                            const dataString = JSON.stringify({
-                                replyToken: req.body.events[0].replyToken,
-                                messages: [
-                                    header
-                                ]
-                            })
-                            // Request header
-                            const headers = {
-                                "Content-Type": "application/json",
-                                "Authorization": "Bearer " + TOKEN
-                            }
-                            // Options to pass into the request
-                            const webhookOptions = {
-                                "hostname": "api.line.me",
-                                "path": "/v2/bot/message/reply",
-                                "method": "POST",
-                                "headers": headers,
-                                "body": dataString
-                            }
-                            // Define request
-                            const request = https.request(webhookOptions, (res) => {
-                                res.on("data", (d) => {
-                                    process.stdout.write(d)
+                                if (doc.length === 0) {
+                                    var header = {
+                                        "type": "text",
+                                        "text": "no information found.!!!"
+                                    }
+                                }
+                                // Message data, must be stringified
+                                const dataString = JSON.stringify({
+                                    replyToken: req.body.events[0].replyToken,
+                                    messages: [
+                                        header
+                                    ]
                                 })
-                            })
-                            // Handle error
-                            request.on("error", (err) => {
-                                console.error(err)
-                            })
-                            // Send data
-                            request.write(dataString)
-                            request.end()
-                        }
-                        return
+                                // Request header
+                                const headers = {
+                                    "Content-Type": "application/json",
+                                    "Authorization": "Bearer " + TOKEN
+                                }
+                                // Options to pass into the request
+                                const webhookOptions = {
+                                    "hostname": "api.line.me",
+                                    "path": "/v2/bot/message/reply",
+                                    "method": "POST",
+                                    "headers": headers,
+                                    "body": dataString
+                                }
+                                // Define request
+                                const request = https.request(webhookOptions, (res) => {
+                                    res.on("data", (d) => {
+                                        process.stdout.write(d)
+                                    })
+                                })
+                                // Handle error
+                                request.on("error", (err) => {
+                                    console.error(err)
+                                })
+                                // Send data
+                                request.write(dataString)
+                                request.end()
+                            }
+                            return
+                        })
                     })
                 }
                 return
@@ -720,36 +722,6 @@ app.post("/webhook", (req, res) => {
                                     "text": "Sensor",
                                     "weight": "bold",
                                     "size": "xl"
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "vertical",
-                                    "margin": "lg",
-                                    "spacing": "sm",
-                                    "contents": [
-                                        {
-                                            "type": "box",
-                                            "layout": "baseline",
-                                            "spacing": "sm",
-                                            "contents": [
-                                                {
-                                                    "type": "text",
-                                                    "text": "Details",
-                                                    "color": "#aaaaaa",
-                                                    "size": "sm",
-                                                    "flex": 1
-                                                },
-                                                {
-                                                    "type": "text",
-                                                    "text": "DHT22",
-                                                    "wrap": true,
-                                                    "color": "#666666",
-                                                    "size": "sm",
-                                                    "flex": 5
-                                                }
-                                            ]
-                                        },
-                                    ]
                                 }
                             ]
                         }
