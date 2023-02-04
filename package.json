@@ -21,6 +21,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "mongoose": "^6.8.1",
+    "mqtt": "^4.3.7",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^7.1.2"

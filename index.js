@@ -6,6 +6,12 @@ const LocalStrategy = require("passport-local")
 const PORT = process.env.PORT || 3000
 const TOKEN = '9UuuOoemAOcBwMH+8qg7ltt78oDQ13EXMbO6BvDkTST812/gvBvT3iaUQhrG1Jjc3DNjuQ360O2Ivp2k7n74xVrL+wjPGR3YiTa1l7mUWBScKqhZqyMY5SKX9s+Q5KPcgDxnEovactioJHpTRsHiBAdB04t89/1O/w1cDnyilFU='
 const User = require("./models/user")
+const mqtt = require('mqtt');
+const client = mqtt.connect('mqtt://192.168.165.213'); //mqtt://broker.hivemq.com //mqtt://192.168.165.213
+
+client.on('connect', () => {
+    console.log('Client connected');
+});
 
 app.use(express.json())
 app.use(express.urlencoded({
@@ -16,9 +22,8 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 passport.use(new LocalStrategy(User.authenticate()));
 
-let user_id, _idMicro, idSerial, namesensor, status, color = ""
+let user_id, _idMicro, idSerial, namesensor, status, color, status1, color1 = ""
 let mysort = { '_id': -1 };
-var ObjectId = require('mongodb').ObjectId;
 
 app.get("/", (req, res) => {
     res.send('Hello express webhook')
@@ -70,9 +75,10 @@ app.post("/webhook", (req, res) => {
     }
 
     //---------------------------------------------------------------------------//
-    else if (user_message?.split(' ')[0] === "true") {
-        let value = req.body.events[0]?.message.text
-        let data = ({ $and: [{ 'namesensor': namesensor, 'idMicro': idSerial }] }, { $set: { 'onoff': value } })
+    else if (user_message?.split(' ')[0] === "true1") {
+        let value = "true"
+        client.publish('relay1', value);
+        let data = ({ $and: [{ 'namesensor': namesensor, 'idMicro': idSerial }] }, { $set: { 'onoff1': value } })
         User.findByIdAndUpdate(_idMicro, data).exec(
             (err) => {
                 if (err) {
@@ -121,9 +127,62 @@ app.post("/webhook", (req, res) => {
     }
 
     //---------------------------------------------------------------------------//
-    else if (user_message?.split(' ')[0] === "false") {
-        let value = req.body.events[0]?.message.text
-        let data = ({ $and: [{ 'namesensor': namesensor, 'idMicro': idSerial }] }, { $set: { 'onoff': value } })
+    else if (user_message?.split(' ')[0] === "true2") {
+        let value = "true"
+        client.publish('relay2', value);
+        let data = ({ $and: [{ 'namesensor': namesensor, 'idMicro': idSerial }] }, { $set: { 'onoff2': value } })
+        User.findByIdAndUpdate(_idMicro, data).exec(
+            (err) => {
+                if (err) {
+                    console.log(err)
+                }
+                else {
+                    // Message data, must be stringified
+                    const dataString = JSON.stringify({
+                        replyToken: req.body.events[0].replyToken,
+                        messages: [
+                            {
+                                "type": "text",
+                                "text": "The selected device is turned on.!!!"
+                            }
+                        ]
+                    })
+                    // Request header
+                    const headers = {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + TOKEN
+                    }
+                    // Options to pass into the request
+                    const webhookOptions = {
+                        "hostname": "api.line.me",
+                        "path": "/v2/bot/message/reply",
+                        "method": "POST",
+                        "headers": headers,
+                        "body": dataString
+                    }
+                    // Define request
+                    const request = https.request(webhookOptions, (res) => {
+                        res.on("data", (d) => {
+                            process.stdout.write(d)
+                        })
+                    })
+                    // Handle error
+                    request.on("error", (err) => {
+                        console.error(err)
+                    })
+                    // Send data
+                    request.write(dataString)
+                    request.end()
+                }
+            }
+        );
+    }
+
+    //---------------------------------------------------------------------------//
+    else if (user_message?.split(' ')[0] === "false1") {
+        let value = "false"
+        client.publish('relay1', value);
+        let data = ({ $and: [{ 'namesensor': namesensor, 'idMicro': idSerial }] }, { $set: { 'onoff1': value } })
         User.findByIdAndUpdate(_idMicro, data).exec(
             (err) => {
                 if (err) {
@@ -171,173 +230,57 @@ app.post("/webhook", (req, res) => {
         );
     }
 
-    // //-------------------------------กำลังทำ--------------------------------------------//
-    // else if (user_message?.split(' ')[0] === "add") {
-    //     const readline = require('readline');
-    //     const readInterface = readline.createInterface({
-    //         input: process.stdin,
-    //         output: process.stdout
-    //     });
-    //     readInterface.question(name(), name => {
-    //         showName(name)
-    //         readInterface.question(long(), lang => {
-    //             showLong(lang)
-    //             readInterface.close();
-    //         });
-    //     });
-    //     async function name() {
-    //         // Message data, must be stringified
-    //         const dataString = await JSON.stringify({
-    //             replyToken: req.body.events[0].replyToken,
-    //             messages: [
-    //                 {
-    //                     "type": "text",
-    //                     "text": "What\'s your name? "
-    //                 },
-    //             ]
-    //         })
-    //         // Request header
-    //         const headers = {
-    //             "Content-Type": "application/json",
-    //             "Authorization": "Bearer " + TOKEN
-    //         }
-    //         // Options to pass into the request
-    //         const webhookOptions = {
-    //             "hostname": "api.line.me",
-    //             "path": "/v2/bot/message/reply",
-    //             "method": "POST",
-    //             "headers": headers,
-    //             "body": dataString
-    //         }
-    //         // Define request
-    //         const request = https.request(webhookOptions, (res) => {
-    //             res.on("data", (d) => {
-    //                 process.stdout.write(d)
-    //             })
-    //         })
-    //         // Handle error
-    //         request.on("error", (err) => {
-    //             console.error(err)
-    //         })
-    //         // Send data
-    //         request.write(dataString)
-    //         request.end()
-    //     }
-    //     async function long() {
-    //         // Message data, must be stringified
-    //         const dataString = await JSON.stringify({
-    //             replyToken: req.body.events[0].replyToken,
-    //             messages: [
-    //                 {
-    //                     "type": "text",
-    //                     "text": "What\'s you favorite language? "
-    //                 },
-    //             ]
-    //         })
-    //         // Request header
-    //         const headers = {
-    //             "Content-Type": "application/json",
-    //             "Authorization": "Bearer " + TOKEN
-    //         }
-    //         // Options to pass into the request
-    //         const webhookOptions = {
-    //             "hostname": "api.line.me",
-    //             "path": "/v2/bot/message/reply",
-    //             "method": "POST",
-    //             "headers": headers,
-    //             "body": dataString
-    //         }
-    //         // Define request
-    //         const request = https.request(webhookOptions, (res) => {
-    //             res.on("data", (d) => {
-    //                 process.stdout.write(d)
-    //             })
-    //         })
-    //         // Handle error
-    //         request.on("error", (err) => {
-    //             console.error(err)
-    //         })
-    //         // Send data
-    //         request.write(dataString)
-    //         request.end()
-    //     }
-    //     async function showName(name) {
-    //         // Message data, must be stringified
-    //         const dataString = await JSON.stringify({
-    //             replyToken: req.body.events[0].replyToken,
-    //             messages: [
-    //                 {
-    //                     "type": "text",
-    //                     "text": `Hi ${name}!`
-    //                 }
-    //             ]
-    //         })
-    //         // Request header
-    //         const headers = {
-    //             "Content-Type": "application/json",
-    //             "Authorization": "Bearer " + TOKEN
-    //         }
-    //         // Options to pass into the request
-    //         const webhookOptions = {
-    //             "hostname": "api.line.me",
-    //             "path": "/v2/bot/message/reply",
-    //             "method": "POST",
-    //             "headers": headers,
-    //             "body": dataString
-    //         }
-    //         // Define request
-    //         const request = https.request(webhookOptions, (res) => {
-    //             res.on("data", (d) => {
-    //                 process.stdout.write(d)
-    //             })
-    //         })
-    //         // Handle error
-    //         request.on("error", (err) => {
-    //             console.error(err)
-    //         })
-    //         // Send data
-    //         request.write(dataString)
-    //         request.end()
-    //     }
-    //     async function showLong(long) {
-    //         // Message data, must be stringified
-    //         const dataString = await JSON.stringify({
-    //             replyToken: req.body.events[0].replyToken,
-    //             messages: [
-    //                 {
-    //                     "type": "text",
-    //                     "text": `Nice! ${long} is my favorite too!`
-    //                 }
-    //             ]
-    //         })
-    //         // Request header
-    //         const headers = {
-    //             "Content-Type": "application/json",
-    //             "Authorization": "Bearer " + TOKEN
-    //         }
-    //         // Options to pass into the request
-    //         const webhookOptions = {
-    //             "hostname": "api.line.me",
-    //             "path": "/v2/bot/message/reply",
-    //             "method": "POST",
-    //             "headers": headers,
-    //             "body": dataString
-    //         }
-    //         // Define request
-    //         const request = https.request(webhookOptions, (res) => {
-    //             res.on("data", (d) => {
-    //                 process.stdout.write(d)
-    //             })
-    //         })
-    //         // Handle error
-    //         request.on("error", (err) => {
-    //             console.error(err)
-    //         })
-    //         // Send data
-    //         request.write(dataString)
-    //         request.end()
-    //     }
-    // }
+    //---------------------------------------------------------------------------//
+    else if (user_message?.split(' ')[0] === "false2") {
+        let value = "false"
+        client.publish('relay2', value);
+        let data = ({ $and: [{ 'namesensor': namesensor, 'idMicro': idSerial }] }, { $set: { 'onoff2': value } })
+        User.findByIdAndUpdate(_idMicro, data).exec(
+            (err) => {
+                if (err) {
+                    console.log(err)
+                }
+                else {
+                    // Message data, must be stringified
+                    const dataString = JSON.stringify({
+                        replyToken: req.body.events[0].replyToken,
+                        messages: [
+                            {
+                                "type": "text",
+                                "text": "The selected device is turned off.!!!"
+                            }
+                        ]
+                    })
+                    // Request header
+                    const headers = {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + TOKEN
+                    }
+                    // Options to pass into the request
+                    const webhookOptions = {
+                        "hostname": "api.line.me",
+                        "path": "/v2/bot/message/reply",
+                        "method": "POST",
+                        "headers": headers,
+                        "body": dataString
+                    }
+                    // Define request
+                    const request = https.request(webhookOptions, (res) => {
+                        res.on("data", (d) => {
+                            process.stdout.write(d)
+                        })
+                    })
+                    // Handle error
+                    request.on("error", (err) => {
+                        console.error(err)
+                    })
+                    // Send data
+                    request.write(dataString)
+                    request.end()
+                }
+            }
+        );
+    }
 
     //---------------------------------------------------------------------------//
     else {
@@ -832,21 +775,35 @@ app.post("/webhook", (req, res) => {
             })
         }
         if (user_id) {
-            User.findOne({ $and: [{ 'namesensor': user_message }, { 'idMicro': idSerial }] }, { '_id': 1, 'onoff': 1 }).then(function (doc1) {
+            User.findOne({ $and: [{ 'namesensor': user_message }, { 'idMicro': idSerial }] }, { '_id': 1, 'onoff1': 1, 'onoff2': 1 }).then(function (doc1) {
                 _idMicro = doc1?._id
-                if (doc1?.onoff == true) {
+                if (doc1?.onoff1 == true) {
                     status = "On"
                     text = "Off"
                     color = "#0BCD55"
                     color1 = "#FF0000"
-                    label = "false"
+                    label = "false1"
                 }
                 else {
                     status = "Off"
                     text = "On"
                     color = "#FF0000"
                     color1 = "#0BCD55"
-                    label = "true"
+                    label = "true1"
+                }
+                if (doc1?.onoff2 == true) {
+                    status1 = "On"
+                    text1 = "Off"
+                    color2 = "#0BCD55"
+                    color3 = "#FF0000"
+                    label1 = "false2"
+                }
+                else {
+                    status1 = "Off"
+                    text1 = "On"
+                    color2 = "#FF0000"
+                    color3 = "#0BCD55"
+                    label1 = "true2"
                 }
                 User.findOne({ $and: [{ 'namesensor': user_message }, { 'idSerial': idSerial }] }, { '_id': 0, 'temperature': 1, 'humidity': 1, 'aqi': 1 }).sort(mysort).then(function (doc) {
                     if (doc?.temperature > 0) {
@@ -906,14 +863,26 @@ app.post("/webhook", (req, res) => {
                                         ]
                                     },
                                     {
-                                        "type": "box",
-                                        "layout": "vertical",
-                                        "contents": [],
-                                        "margin": "sm"
+                                        "type": "separator",
+                                        "margin": "md"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "Relay 1 ",
+                                        "color": "#000000",
+                                        "size": "md",
+                                        "weight": "bold",
+                                        "align": "center"
                                     },
                                     {
                                         "type": "separator",
                                         "margin": "md"
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [],
+                                        "margin": "sm"
                                     },
                                     {
                                         "type": "text",
@@ -922,10 +891,6 @@ app.post("/webhook", (req, res) => {
                                         "size": "md",
                                         "weight": "bold",
                                         "align": "center"
-                                    },
-                                    {
-                                        "type": "separator",
-                                        "margin": "md"
                                     },
                                     {
                                         "type": "button",
@@ -937,6 +902,48 @@ app.post("/webhook", (req, res) => {
                                             "type": "message",
                                             "label": text,
                                             "text": label
+                                        },
+                                    },
+                                    {
+                                        "type": "separator",
+                                        "margin": "md"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "Relay 2 ",
+                                        "color": "#000000",
+                                        "size": "md",
+                                        "weight": "bold",
+                                        "align": "center"
+                                    },
+                                    {
+                                        "type": "separator",
+                                        "margin": "md"
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [],
+                                        "margin": "sm"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "Status : " + status1,
+                                        "color": color2,
+                                        "size": "md",
+                                        "weight": "bold",
+                                        "align": "center"
+                                    },
+                                    {
+                                        "type": "button",
+                                        "color": color3,
+                                        "style": "primary",
+                                        "margin": "md",
+                                        "height": "sm",
+                                        "action": {
+                                            "type": "message",
+                                            "label": text1,
+                                            "text": label1
                                         },
                                     }
                                 ],
