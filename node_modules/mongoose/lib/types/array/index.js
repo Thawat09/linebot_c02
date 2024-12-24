@@ -24,7 +24,7 @@ const arraySchemaSymbol = require('../../helpers/symbols').arraySchemaSymbol;
  * @param {String} path
  * @param {Document} doc parent document
  * @api private
- * @inherits Array
+ * @inherits Array https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
  * @see https://bit.ly/f6CnZU
  */
 const _basePush = Array.prototype.push;
@@ -90,6 +90,12 @@ function MongooseArray(values, path, doc, schematype) {
       if (mongooseArrayMethods.hasOwnProperty(prop)) {
         return mongooseArrayMethods[prop];
       }
+      if (schematype && schematype.virtuals && schematype.virtuals.hasOwnProperty(prop)) {
+        return schematype.virtuals[prop].applyGetters(undefined, target);
+      }
+      if (typeof prop === 'string' && numberRE.test(prop) && schematype?.$embeddedSchemaType != null) {
+        return schematype.$embeddedSchemaType.applyGetters(__array[prop], doc);
+      }
 
       return __array[prop];
     },
@@ -98,6 +104,8 @@ function MongooseArray(values, path, doc, schematype) {
         mongooseArrayMethods.set.call(proxy, prop, value, false);
       } else if (internals.hasOwnProperty(prop)) {
         internals[prop] = value;
+      } else if (schematype && schematype.virtuals && schematype.virtuals.hasOwnProperty(prop)) {
+        schematype.virtuals[prop].applySetters(value, target);
       } else {
         __array[prop] = value;
       }
