@@ -3,8 +3,9 @@ const express = require("express")
 const app = express()
 const passport = require("passport")
 const LocalStrategy = require("passport-local")
+const rateLimit = require('express-rate-limit')
 const PORT = process.env.PORT || 3000
-const TOKEN = 'yourToken'
+const TOKEN = process.env.TOKEN
 const User = require("./models/user")
 const mqtt = require('mqtt');
 const client = mqtt.connect('mqtt://192.168.165.213'); //mqtt://broker.hivemq.com //mqtt://192.168.165.213
@@ -17,6 +18,13 @@ app.use(express.json())
 app.use(express.urlencoded({
     extended: true
 }))
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+
+app.use(limiter);
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
