@@ -4,7 +4,7 @@ const app = express()
 const passport = require("passport")
 const LocalStrategy = require("passport-local")
 const PORT = process.env.PORT || 3000
-const TOKEN = '9UuuOoemAOcBwMH+8qg7ltt78oDQ13EXMbO6BvDkTST812/gvBvT3iaUQhrG1Jjc3DNjuQ360O2Ivp2k7n74xVrL+wjPGR3YiTa1l7mUWBScKqhZqyMY5SKX9s+Q5KPcgDxnEovactioJHpTRsHiBAdB04t89/1O/w1cDnyilFU='
+const TOKEN = 'yourToken'
 const User = require("./models/user")
 const mqtt = require('mqtt');
 const client = mqtt.connect('mqtt://192.168.165.213'); //mqtt://broker.hivemq.com //mqtt://192.168.165.213
