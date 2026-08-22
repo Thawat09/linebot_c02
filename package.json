@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/Thawat09/linebot_c02#readme",
   "dependencies": {
-    "express": "^4.22.2",
+    "express": "^5.2.1",
     "express-rate-limit": "^7.5.0",
     "mongoose": "^8.9.2",
     "mqtt": "^5.10.3",
