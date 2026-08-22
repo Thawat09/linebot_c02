@@ -21,7 +21,7 @@
   "dependencies": {
     "express": "^4.22.2",
     "express-rate-limit": "^7.5.0",
-    "mongoose": "^8.9.2",
+    "mongoose": "^8.24.1",
     "mqtt": "^5.10.3",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
